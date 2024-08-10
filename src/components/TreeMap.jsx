@@ -85,7 +85,7 @@ const MapComponent = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-72 my-3 ml-2 p-2 border border-gray-400 rounded-md"
         />
-        {filteredTree && <ul className="absolute top-full left-2 z-10 bg-gray-300 shadow-lg w-72 rounded-md mt-0.5">
+        {filteredTrees && <ul className="absolute top-full left-2 z-10 bg-gray-300 shadow-lg w-72 rounded-md mt-0.5">
           {filteredTrees.length === 0 ? <li className="p-2 flex justify-start items-center cursor-pointer border-b border-gray-200 hover:bg-gray-400 hover:text-black rounded-md">No Tree Found</li>:filteredTrees.map((tree) => (
             <li
               key={tree.id}
