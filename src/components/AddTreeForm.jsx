@@ -96,10 +96,13 @@ const AddTreeForm = () => {
     submitdata.append("file", imageFile);
 
     try {
-      const res = await fetch("http://localhost:8080/api/trees/add", {
-        method: "POST",
-        body: submitdata,
-      });
+      const res = await fetch(
+        "https://tree-book-backend.vercel.app/api/trees/add",
+        {
+          method: "POST",
+          body: submitdata,
+        }
+      );
 
       const data = await res.json(); // Parse the JSON response
 

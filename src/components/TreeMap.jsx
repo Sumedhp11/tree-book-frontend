@@ -50,7 +50,7 @@ const MapComponent = () => {
     const fetchTrees = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/trees/all?searchTerm=${searchQuery}`
+          `https://tree-book-backend.vercel.app/api/trees/all?searchTerm=${searchQuery}`
         );
         const result = await response.json();
 
