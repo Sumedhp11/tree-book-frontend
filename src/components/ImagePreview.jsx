@@ -4,7 +4,7 @@ const ImagePreview = ({ imagePreview, classname, Icon, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className={`${classname} flex items-center justify-center border border-input  bg-gray-100 overflow-hidden shadow-lg shadow-gray-400`}
+      className={`${classname} flex items-center justify-center  bg-zinc-300 rounded-lg overflow-hidden shadow-md shadow-zinc-400`}
     >
       {imagePreview ? (
         <img
