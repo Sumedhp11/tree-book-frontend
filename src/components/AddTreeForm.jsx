@@ -60,7 +60,7 @@ const AddTreeForm = () => {
         setGeoLocation({ lat: "N/A", long: "N/A" });
         setErrors((prev) => ({
           ...prev,
-          locationError: "Failed to extract geolocation data",
+          locationError: "Image is not GeoTagged, Please upload another image",
         }));
       }
     } else {
