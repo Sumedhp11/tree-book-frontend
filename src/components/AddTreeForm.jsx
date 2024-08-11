@@ -1,18 +1,16 @@
 /* eslint-disable react-refresh/only-export-components */
 import exifr from "exifr";
 import { Plus } from "lucide-react";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import Applayout from "./layout/AppLayout";
+import ImagePreview from "./ImagePreview";
 
 const AddTreeForm = () => {
-  const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [imageFile, setImageFile] = useState(null);
-  const [geoLocation, setGeoLocation] = useState({
-    lat: "",
-    long: "",
-  });
+  const [geoLocation, setGeoLocation] = useState({ lat: "", long: "" });
   const [formData, setFormData] = useState({
     tree_name: "",
     soil_type: "",
@@ -25,37 +23,32 @@ const AddTreeForm = () => {
     formError: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const handleDivClick = () => {
-    fileInputRef.current?.click();
-  };
 
-  const handleFileChange = async (event) => {
+  const handleDivClick = useCallback((event) => {
+    event.stopPropagation();
+
+    console.log("Div clicked", event);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }, []);
+
+  const handleFileChange = useCallback(async (event) => {
     const file = event.target?.files[0];
-
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
-
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
-
       reader.readAsDataURL(file);
-      setImageFile(file); // Store the file itself
-
+      setImageFile(file);
       try {
         const { latitude, longitude } = await exifr.gps(file);
-
         if (latitude && longitude) {
-          setGeoLocation({
-            lat: latitude,
-            long: longitude,
-          });
+          setGeoLocation({ lat: latitude, long: longitude });
           setErrors((prev) => ({ ...prev, locationError: null }));
         } else {
-          setGeoLocation({
-            lat: "N/A",
-            long: "N/A",
-          });
+          setGeoLocation({ lat: "N/A", long: "N/A" });
           setErrors((prev) => ({
             ...prev,
             locationError:
@@ -64,10 +57,7 @@ const AddTreeForm = () => {
         }
       } catch (error) {
         console.error("Failed to extract geolocation data", error);
-        setGeoLocation({
-          lat: "N/A",
-          long: "N/A",
-        });
+        setGeoLocation({ lat: "N/A", long: "N/A" });
         setErrors((prev) => ({
           ...prev,
           locationError: "Failed to extract geolocation data",
@@ -76,7 +66,7 @@ const AddTreeForm = () => {
     } else {
       alert("Please upload a valid image file.");
     }
-  };
+  }, []);
 
   const submitHandler = async () => {
     if (!formData.tree_name) {
@@ -94,7 +84,6 @@ const AddTreeForm = () => {
     submitdata.append("soil_type", formData.soil_type);
     submitdata.append("kb_link", formData.kb_link);
     submitdata.append("file", imageFile);
-
     try {
       const res = await fetch(
         "https://tree-book-backend.vercel.app/api/trees/add",
@@ -103,26 +92,19 @@ const AddTreeForm = () => {
           body: submitdata,
         }
       );
-
-      const data = await res.json(); // Parse the JSON response
-
+      const data = await res.json();
       if (!res.ok) {
         toast.error(data.message || "Failed to submit the form.");
         throw new Error(data.message || "Failed to submit the form.");
       }
-
       toast.success("Tree Added Successfully");
-
       setFormData({
         tree_name: "",
         soil_type: "",
         tree_age: "",
         kb_link: "",
       });
-      setGeoLocation({
-        lat: "",
-        long: "",
-      });
+      setGeoLocation({ lat: "", long: "" });
       setImagePreview(null);
       setImageFile(null);
       setErrors({
@@ -139,41 +121,35 @@ const AddTreeForm = () => {
       setIsSubmitting(false);
     }
   };
+
   const isFormValid =
     formData.tree_name &&
     geoLocation.lat &&
     geoLocation.long &&
     imageFile &&
     formData.kb_link;
+
   return (
-    <div className="w-full mt-12 flex justify-center items-center ">
-      <div className="w-4/5 sm:w-[70%] md:w-[60%] lg:w-[30%]  h-fit py-5 border border-gray-300 rounded-lg px-1">
+    <div className="w-full mt-12 flex justify-center items-center">
+      <div className="w-4/5 sm:w-[70%] md:w-[60%] lg:w-[30%] h-fit py-5 border border-gray-300 rounded-lg px-1">
         <h1 className="text-center font-serif font-semibold text-lg">
           Add Tree 🪖
         </h1>
-        <div className="w-full px-3 mt-3 space-y-2">
+        <div className="w-full px-3 mt-3 space-y-2 relative">
           <label className="font-medium font-serif">Upload Tree Image</label>
-          <div
-            className="w-full sm:w-1/3 h-32 max-h-[250px] bg-zinc-300 flex justify-center items-center cursor-pointer relative"
+          <ImagePreview
+            imagePreview={imagePreview}
+            classname="w-full sm:w-1/3 h-32 max-h-[250px] bg-zinc-300 flex justify-center items-center cursor-pointer relative"
+            Icon={Plus}
             onClick={handleDivClick}
-          >
-            {imagePreview ? (
-              <img
-                src={imagePreview}
-                alt="Tree"
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <Plus size={60} />
-            )}
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-              onChange={handleFileChange}
-              accept="image/*"
-            />
-          </div>
+          />
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="absolute inset-0 opacity-0 cursor-pointer w-full sm:w-1/3"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
         </div>
         <p className="text-orange-700 px-3 font-medium text-xs mt-1">
           The Location will be fetched Automatically from Image*
@@ -190,8 +166,7 @@ const AddTreeForm = () => {
             }
           />
         </div>
-
-        <div className="mt-5 flex items-center gap-5 px-3 w-full ">
+        <div className="mt-5 flex items-center gap-5 px-3 w-full">
           <div className="w-1/2 flex flex-col">
             <label htmlFor="lat" className="font-medium font-serif">
               Latitude
