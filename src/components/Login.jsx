@@ -1,25 +1,16 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/prop-types */
-import { onAuthStateChanged } from "firebase/auth";
-import { useEffect } from "react";
+/* eslint-disable no-unused-vars */
 import googleLogo from "../assets/google-logo-png.png";
-import { auth, provider, signInWithPopup } from "../configs/firebaseConfig";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../configs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 
-const Login = ({ setUser }) => {
+const Login = () => {
   const navigate = useNavigate();
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      navigate("/add-tree");
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
+      navigate("/");
     } catch (error) {
       console.error("Error signing in:", error);
     }
