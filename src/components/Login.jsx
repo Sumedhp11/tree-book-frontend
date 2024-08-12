@@ -3,16 +3,19 @@ import googleLogo from "../assets/google-logo-png.png";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../configs/firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
 
   const handleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
       navigate("/");
+      toast.success("Welcome to Tree-book");
     } catch (error) {
       console.error("Error signing in:", error);
+      toast.error("Failed to sign in. Please try again."); // Optional, for user feedback
     }
   };
 
