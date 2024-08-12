@@ -6,7 +6,7 @@ const TreeInfoWindow = ({ tree }) => {
         src={tree?.tree_image}
         alt="tree-image"
         loading="lazy"
-        className="w-full h-20 mb-4"
+        className="w-full h-20 mb-4 object-contain"
       />
       <p className="text-sm font-medium ">Tree Name: {tree?.name}</p>
       <p className="text-sm font-normal">
