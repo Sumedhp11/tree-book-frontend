@@ -1,58 +1,73 @@
+// src/App.js
+
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
 import AddTreeForm from "./components/AddTreeForm";
 import TreeMap from "./components/TreeMap";
 import Login from "./components/Login";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./configs/firebaseConfig";
 import LoaderComponent from "./components/Loader";
+import { AuthProvider, AuthContext } from "./components/layout/AuthProvider";
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (isLoading) {
-    return <LoaderComponent />;
-  }
-
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            !user ? <Login setUser={setUser} /> : <Navigate to="/add-tree" />
-          }
-        />
-        <Route
-          path="/add-tree"
-          element={
-            user ? (
-              <AddTreeForm isLoading={isLoading} user={user} />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/tree-map"
-          element={user ? <TreeMap /> : <Navigate to="/" />}
-        />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <AuthContext.Consumer>
+                {({ user, isLoading }) =>
+                  isLoading ? (
+                    <LoaderComponent />
+                  ) : !user ? (
+                    <Login />
+                  ) : (
+                    <Navigate to="/add-tree" />
+                  )
+                }
+              </AuthContext.Consumer>
+            }
+          />
+          <Route
+            path="/add-tree"
+            element={
+              <AuthContext.Consumer>
+                {({ user, isLoading }) =>
+                  isLoading ? (
+                    <LoaderComponent />
+                  ) : user ? (
+                    <AddTreeForm />
+                  ) : (
+                    <Navigate to="/" />
+                  )
+                }
+              </AuthContext.Consumer>
+            }
+          />
+          <Route
+            path="/tree-map"
+            element={
+              <AuthContext.Consumer>
+                {({ user, isLoading }) =>
+                  isLoading ? (
+                    <LoaderComponent />
+                  ) : user ? (
+                    <TreeMap />
+                  ) : (
+                    <Navigate to="/" />
+                  )
+                }
+              </AuthContext.Consumer>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

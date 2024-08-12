@@ -1,12 +1,13 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import CameraCapture from "./CameraCapture";
 import Applayout from "./layout/AppLayout";
 import LoaderComponent from "./Loader";
+import { AuthContext } from "./layout/AuthProvider";
 
-const AddTreeForm = ({ user, isLoading }) => {
+const AddTreeForm = () => {
+  const { user, isLoading } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     tree_name: "",
     tree_age: "",
