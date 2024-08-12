@@ -1,9 +1,10 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { Link, useLocation } from "react-router-dom";
 
 /* eslint-disable react/display-name */
 const Applayout = (WrappedComponent) => {
-  return () => {
+  return ({ user }) => {
     const location = useLocation();
     return (
       <div className="sm:h-screen h-dvh w-full grid grid-rows-12">
@@ -32,7 +33,7 @@ const Applayout = (WrappedComponent) => {
           </ul>
         </div>
         <div className="row-span-11">
-          <WrappedComponent />
+          <WrappedComponent user={user} />
         </div>
       </div>
     );

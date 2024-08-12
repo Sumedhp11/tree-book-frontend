@@ -1,19 +1,12 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import Applayout from "./layout/AppLayout";
 import CameraCapture from "./CameraCapture";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../configs/firebaseConfig";
+import Applayout from "./layout/AppLayout";
+import LoaderComponent from "./Loader";
 
-const AddTreeForm = () => {
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+const AddTreeForm = ({ user, isLoading }) => {
   const [formData, setFormData] = useState({
     tree_name: "",
     tree_age: "",
@@ -29,7 +22,7 @@ const AddTreeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (navigator?.geolocation && imageFile) {
+    if (imageFile) {
       const getGoogleMapsLocation = async () => {
         const response = await fetch(
           "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyDoXymPuoD_3En9-KxcHIr3jegSR6E4G-o",
@@ -106,7 +99,9 @@ const AddTreeForm = () => {
   const isFormValid =
     formData.tree_name && geoLocation.lat && geoLocation.long && imageFile;
 
-  return (
+  return isLoading ? (
+    <LoaderComponent />
+  ) : (
     <div className="w-full mt-12 flex justify-center items-center">
       <div className="w-4/5 sm:w-[70%] md:w-[60%] lg:w-[30%] h-fit py-5 border border-gray-300 rounded-lg px-1">
         <h1 className="text-center font-serif font-semibold text-lg">
