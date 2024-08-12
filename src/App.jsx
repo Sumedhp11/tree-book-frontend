@@ -39,7 +39,7 @@ function App() {
         />
         <Route
           path="/add-tree"
-          element={user ? <AddTreeForm user={user} /> : <Navigate to="/" />}
+          element={user ? <AddTreeForm /> : <Navigate to="/" />}
         />
         <Route
           path="/tree-map"

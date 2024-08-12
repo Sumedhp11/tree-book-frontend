@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
@@ -13,7 +14,7 @@ const Login = ({ setUser }) => {
       navigate("/add-tree");
     });
     return () => unsubscribe();
-  }, [setUser, navigate]);
+  }, []);
 
   const handleSignIn = async () => {
     try {
