@@ -56,6 +56,10 @@ const CameraCapture = ({ setImageFile, imageFile }) => {
           <Webcam
             audio={false}
             ref={webcamRef}
+            imageSmoothing={true}
+           videoConstraints = {
+      facingMode: { exact: "environment" }
+    }
             screenshotFormat="image/jpeg"
             mirrored={true}
             className="h-52 w-96 bg-zinc-300 relative"
