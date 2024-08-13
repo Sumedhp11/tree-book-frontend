@@ -6,7 +6,11 @@ import Webcam from "react-webcam";
 const CameraCapture = ({ setImageFile, imageFile }) => {
   const [showWebcam, setShowWebcam] = useState(false);
   const webcamRef = useRef(null);
-
+const videoConstraints = {
+  width: 1280,
+  height: 720,
+  facingMode: "environment"
+};
   const base64ToFile = (base64, fileName) => {
     const [header, data] = base64.split(",");
     const mime = header.match(/:(.*?);/)[1];
@@ -57,9 +61,7 @@ const CameraCapture = ({ setImageFile, imageFile }) => {
             audio={false}
             ref={webcamRef}
             imageSmoothing={true}
-           videoConstraints = {
-      facingMode: { exact: "environment" }
-    }
+           videoConstraints={}
             screenshotFormat="image/jpeg"
             mirrored={true}
             className="h-52 w-96 bg-zinc-300 relative"
