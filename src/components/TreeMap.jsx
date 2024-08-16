@@ -7,11 +7,12 @@ import {
   InfoWindow,
 } from "@react-google-maps/api";
 import Applayout from "./layout/AppLayout";
-import TreeInfoWindow from "./TreeInfoWindow"; // Import the custom component
+import TreeInfoWindow from "./TreeInfoWindow";
+import QRCode from "qrcode";
 
 const MapComponent = () => {
   const [userLocation, setUserLocation] = useState(null);
-
+  const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [selectedTree, setSelectedTree] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredTrees, setFilteredTrees] = useState([]);
@@ -75,6 +76,20 @@ const MapComponent = () => {
     return () => clearTimeout(debounceFetch);
   }, [searchQuery]);
 
+  const handleMarkerClick = async (tree) => {
+    setSelectedTree(tree);
+
+    const url = `http://localhost:5173/map?lat=${
+      tree.geolocation.split(",")[0]
+    }&lng=${tree.geolocation.split(",")[1]}`;
+    try {
+      const qrCode = await QRCode.toDataURL(url);
+      setQrCodeUrl(qrCode);
+    } catch (error) {
+      console.error("Error generating QR code", error);
+    }
+  };
+
   return (
     <div className="h-full">
       <div className="relative">
@@ -87,20 +102,10 @@ const MapComponent = () => {
         />
         {searchQuery && (
           <ul className="absolute top-full left-2 z-10 bg-gray-300 shadow-lg w-72 rounded-md mt-0.5">
-            {filteredTrees.length === 0 ? (
+            {filteredTrees.length === 0 && (
               <li className="p-2 flex justify-start items-center cursor-pointer border-b border-gray-200 hover:bg-gray-400 hover:text-black rounded-md">
                 No Tree Found
               </li>
-            ) : (
-              filteredTrees.map((tree) => (
-                <li
-                  key={tree.id}
-                  onClick={() => setSelectedTree(tree)}
-                  className="p-2 flex justify-start items-center cursor-pointer border-b border-gray-200 hover:bg-gray-400 hover:text-black rounded-md"
-                >
-                  {tree.name}
-                </li>
-              ))
             )}
           </ul>
         )}
@@ -127,7 +132,7 @@ const MapComponent = () => {
                 <Marker
                   key={tree.id}
                   position={{ lat, lng }}
-                  onClick={() => setSelectedTree(tree)}
+                  onClick={() => handleMarkerClick(tree)}
                 />
               );
             }
@@ -143,7 +148,21 @@ const MapComponent = () => {
               }}
               onCloseClick={() => setSelectedTree(null)}
             >
-              <TreeInfoWindow tree={selectedTree} />
+              <div>
+                <TreeInfoWindow tree={selectedTree} />
+                {qrCodeUrl && (
+                  <div>
+                    <img src={qrCodeUrl} alt="QR Code" />
+                    <a
+                      href={qrCodeUrl}
+                      download={`tree-${selectedTree.id}-qrcode.png`}
+                      className="block mt-2 text-blue-500"
+                    >
+                      Download QR Code
+                    </a>
+                  </div>
+                )}
+              </div>
             </InfoWindow>
           )}
         </GoogleMap>

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import googleLogo from "../assets/google-logo-png.png";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../configs/firebaseConfig";
