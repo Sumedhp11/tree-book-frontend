@@ -79,7 +79,7 @@ const MapComponent = () => {
   const handleMarkerClick = async (tree) => {
     setSelectedTree(tree);
 
-    const url = `http://localhost:5173/map?lat=${
+    const url = `https://treebook.vercel.app/map?lat=${
       tree.geolocation.split(",")[0]
     }&lng=${tree.geolocation.split(",")[1]}`;
     try {
