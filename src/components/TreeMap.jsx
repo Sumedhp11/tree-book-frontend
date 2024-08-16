@@ -6,9 +6,10 @@ import {
   Marker,
   InfoWindow,
 } from "@react-google-maps/api";
+import { useSearchParams } from "react-router-dom";
+import QRCode from "qrcode";
 import Applayout from "./layout/AppLayout";
 import TreeInfoWindow from "./TreeInfoWindow";
-import QRCode from "qrcode";
 
 const MapComponent = () => {
   const [userLocation, setUserLocation] = useState(null);
@@ -16,8 +17,10 @@ const MapComponent = () => {
   const [selectedTree, setSelectedTree] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredTrees, setFilteredTrees] = useState([]);
+  const [searchParams] = useSearchParams();
 
   useLayoutEffect(() => {
+    // Fetch user location
     const fetchUserLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -29,7 +32,6 @@ const MapComponent = () => {
           },
           (error) => {
             console.error("Error fetching user location:", error);
-
             setUserLocation({ lat: 20.5937, lng: 78.9629 });
           },
           {
@@ -48,13 +50,13 @@ const MapComponent = () => {
   }, []);
 
   useEffect(() => {
+    // Fetch tree data
     const fetchTrees = async () => {
       try {
         const response = await fetch(
           `https://tree-book-backend.vercel.app/api/trees/all?searchTerm=${searchQuery}`
         );
         const result = await response.json();
-
         if (response.ok) {
           setFilteredTrees(result.data);
         } else {
@@ -76,12 +78,29 @@ const MapComponent = () => {
     return () => clearTimeout(debounceFetch);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const lat = searchParams.get("lat");
+    const lng = searchParams.get("lng");
+
+    if (lat && lng) {
+      const treeMarker = filteredTrees.find(
+        (tree) =>
+          parseFloat(tree.geolocation.split(",")[0]) === parseFloat(lat) &&
+          parseFloat(tree.geolocation.split(",")[1]) === parseFloat(lng)
+      );
+      if (treeMarker) {
+        setSelectedTree(treeMarker);
+      }
+    }
+  }, [filteredTrees, searchParams]);
+
   const handleMarkerClick = async (tree) => {
     setSelectedTree(tree);
 
-    const url = `https://treebook.vercel.app/map?lat=${
+    const url = `https://treebook.vercel.app/tree-map?lat=${
       tree.geolocation.split(",")[0]
     }&lng=${tree.geolocation.split(",")[1]}`;
+
     try {
       const qrCode = await QRCode.toDataURL(url);
       setQrCodeUrl(qrCode);
@@ -118,9 +137,7 @@ const MapComponent = () => {
           zoom={12}
           options={{ disableDefaultUI: true, zoomControl: true }}
         >
-          {userLocation && filteredTrees.geolocation && (
-            <Marker position={userLocation} />
-          )}
+          {userLocation && <Marker position={userLocation} />}
 
           {filteredTrees.map((tree) => {
             const [lat, lng] = tree.geolocation
@@ -130,7 +147,7 @@ const MapComponent = () => {
             if (!isNaN(lat) && !isNaN(lng)) {
               return (
                 <Marker
-                  key={tree.id}
+                  key={tree._id}
                   position={{ lat, lng }}
                   onClick={() => handleMarkerClick(tree)}
                 />
@@ -152,11 +169,11 @@ const MapComponent = () => {
                 <TreeInfoWindow tree={selectedTree} />
                 {qrCodeUrl && (
                   <div>
-                    <img src={qrCodeUrl} alt="QR Code" />
+                    <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
                     <a
                       href={qrCodeUrl}
-                      download={`tree-${selectedTree.id}-qrcode.png`}
-                      className="block mt-2 text-blue-500"
+                      download={`tree-${selectedTree._id}-qrcode.png`}
+                      className="block mt-2 text-blue-500 hover:underline"
                     >
                       Download QR Code
                     </a>
