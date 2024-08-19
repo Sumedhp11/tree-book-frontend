@@ -12,15 +12,14 @@ const AddTreeForm = () => {
     tree_name: "",
     tree_age: "",
   });
-
   const [geoLocation, setGeoLocation] = useState({
     lat: null,
     long: null,
   });
-
   const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({ formError: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNameUnknown, setIsNameUnknown] = useState(false);
 
   useEffect(() => {
     if (imageFile) {
@@ -49,8 +48,23 @@ const AddTreeForm = () => {
     }));
   };
 
+  const handleRadioChange = () => {
+    setIsNameUnknown(!isNameUnknown);
+    if (!isNameUnknown) {
+      setFormData((prevData) => ({
+        ...prevData,
+        tree_name: "Unknown",
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        tree_name: "",
+      }));
+    }
+  };
+
   const submitHandler = async () => {
-    if (!formData.tree_name) {
+    if (!formData.tree_name && !isNameUnknown) {
       setErrors((prev) => ({
         ...prev,
         formError: "Tree name is required.",
@@ -60,7 +74,7 @@ const AddTreeForm = () => {
 
     setIsSubmitting(true);
     const submitdata = new FormData();
-    submitdata.append("name", formData.tree_name);
+    submitdata.append("name", isNameUnknown ? "Unknown" : formData.tree_name);
     submitdata.append("geolocation", `${geoLocation.lat},${geoLocation.long}`);
     submitdata.append("age", formData.tree_age);
     submitdata.append("file", imageFile);
@@ -87,6 +101,7 @@ const AddTreeForm = () => {
       setGeoLocation({ lat: null, long: null });
       setImageFile(null);
       setErrors({ formError: null });
+      setIsNameUnknown(false);
     } catch (error) {
       setErrors((prev) => ({
         ...prev,
@@ -98,7 +113,10 @@ const AddTreeForm = () => {
   };
 
   const isFormValid =
-    formData.tree_name && geoLocation.lat && geoLocation.long && imageFile;
+    (formData.tree_name || isNameUnknown) &&
+    geoLocation.lat &&
+    geoLocation.long &&
+    imageFile;
 
   return isLoading ? (
     <LoaderComponent />
@@ -110,22 +128,38 @@ const AddTreeForm = () => {
         </h1>
         <div className="mt-5 px-3 w-full flex flex-col space-y-3">
           <CameraCapture setImageFile={setImageFile} imageFile={imageFile} />
-          <div>
+          <div className="flex flex-col">
             <label htmlFor="tree_name" className="font-medium font-serif">
               Tree Name
             </label>
-            <div className="relative">
+            <div className="flex gap-4 items-center">
               <input
                 type="text"
                 name="tree_name"
-                className="font-normal p-2 text-sm border border-zinc-400 w-full h-7 rounded placeholder:text-sm relative"
+                className={`font-normal p-2 text-sm border border-zinc-400 w-2/3 h-7 rounded placeholder:text-sm relative ${
+                  isNameUnknown
+                    ? "border-gray-300 placeholder:text-gray-300 cursor-not-allowed"
+                    : ""
+                }`}
                 value={formData.tree_name}
                 onChange={handleInputChange}
                 placeholder="Enter the tree name"
-                required
+                disabled={isNameUnknown}
               />
-              <div className="absolute  rounded-full text-red-700 font-semibold text-base -top-4  right-0 ">
-                *
+              <div className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="unknown"
+                  id="unknown"
+                  checked={isNameUnknown}
+                  onChange={handleRadioChange}
+                />
+                <label
+                  htmlFor="unknown"
+                  className="text-sm font-medium text-nowrap"
+                >
+                  {`Don't know Name?`}
+                </label>
               </div>
             </div>
           </div>

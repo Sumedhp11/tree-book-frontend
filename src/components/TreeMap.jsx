@@ -1,112 +1,87 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useEffect, useLayoutEffect, useState } from "react";
 import {
   GoogleMap,
+  InfoWindow,
   LoadScript,
   Marker,
-  InfoWindow,
 } from "@react-google-maps/api";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import QRCode from "qrcode";
+
+import { fetchTreeAPI } from "../apis/treesAPI";
 import Applayout from "./layout/AppLayout";
+import LoaderComponent from "./Loader";
 import TreeInfoWindow from "./TreeInfoWindow";
 
 const MapComponent = () => {
-  const [userLocation, setUserLocation] = useState(null);
-  const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [selectedTree, setSelectedTree] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredTrees, setFilteredTrees] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
   const [searchParams] = useSearchParams();
+  const [map, setMap] = useState(null);
+  const { data } = useQuery({
+    queryKey: ["trees", debouncedSearchTerm],
+    queryFn: () => fetchTreeAPI(debouncedSearchTerm),
+  });
 
   useLayoutEffect(() => {
-    // Fetch user location
-    const fetchUserLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (error) => {
-            console.error("Error fetching user location:", error);
-            setUserLocation({ lat: 20.5937, lng: 78.9629 });
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
-          }
-        );
-      } else {
-        console.error("Geolocation is not supported by this browser.");
-        setUserLocation({ lat: 20.5937, lng: 78.9629 });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
-    };
-
-    fetchUserLocation();
+    );
   }, []);
 
   useEffect(() => {
-    // Fetch tree data
-    const fetchTrees = async () => {
-      try {
-        const response = await fetch(
-          `https://tree-book-backend.vercel.app/api/trees/all?searchTerm=${searchQuery}`
-        );
-        const result = await response.json();
-        if (response.ok) {
-          setFilteredTrees(result.data);
-        } else {
-          console.error("Error fetching trees data:", result.message);
-        }
-      } catch (error) {
-        console.error("Error fetching trees data:", error);
-      }
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
     };
-
-    const debounceFetch = setTimeout(() => {
-      if (searchQuery) {
-        fetchTrees();
-      } else {
-        setFilteredTrees([]);
-      }
-    }, 300);
-
-    return () => clearTimeout(debounceFetch);
-  }, [searchQuery]);
+  }, [searchTerm]);
 
   useEffect(() => {
-    const lat = searchParams.get("lat");
-    const lng = searchParams.get("lng");
+    const lat = parseFloat(searchParams.get("lat"));
+    const lng = parseFloat(searchParams.get("lng"));
 
-    if (lat && lng) {
-      const treeMarker = filteredTrees.find(
-        (tree) =>
-          parseFloat(tree.geolocation.split(",")[0]) === parseFloat(lat) &&
-          parseFloat(tree.geolocation.split(",")[1]) === parseFloat(lng)
-      );
-      if (treeMarker) {
-        setSelectedTree(treeMarker);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const tree = data?.data.find((tree) => {
+        const [treeLat, treeLng] = tree.geolocation
+          .split(",")
+          .map((coord) => parseFloat(coord.trim()));
+        return treeLat === lat && treeLng === lng;
+      });
+
+      if (tree) {
+        setSelectedTree(tree);
+        if (map) {
+          map.panTo({ lat, lng });
+        }
       }
     }
-  }, [filteredTrees, searchParams]);
+  }, [searchParams, data, map]);
 
-  const handleMarkerClick = async (tree) => {
+  const handleMarkerClick = (tree) => {
     setSelectedTree(tree);
+  };
 
-    const url = `https://treebook.vercel.app/tree-map?lat=${
-      tree.geolocation.split(",")[0]
-    }&lng=${tree.geolocation.split(",")[1]}`;
-
-    try {
-      const qrCode = await QRCode.toDataURL(url);
-      setQrCodeUrl(qrCode);
-    } catch (error) {
-      console.error("Error generating QR code", error);
-    }
+  const onMapLoad = (mapInstance) => {
+    setMap(mapInstance);
   };
 
   return (
@@ -115,13 +90,13 @@ const MapComponent = () => {
         <input
           type="text"
           placeholder="Search for a tree..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="w-72 my-3 ml-2 p-2 border border-gray-400 rounded-md"
         />
-        {searchQuery && (
+        {searchTerm && (
           <ul className="absolute top-full left-2 z-10 bg-gray-300 shadow-lg w-72 rounded-md mt-0.5">
-            {filteredTrees.length === 0 && (
+            {data?.data.length === 0 && (
               <li className="p-2 flex justify-start items-center cursor-pointer border-b border-gray-200 hover:bg-gray-400 hover:text-black rounded-md">
                 No Tree Found
               </li>
@@ -130,16 +105,18 @@ const MapComponent = () => {
         )}
       </div>
 
-      <LoadScript googleMapsApiKey="AIzaSyDoXymPuoD_3En9-KxcHIr3jegSR6E4G-o">
+      <LoadScript
+        googleMapsApiKey={import.meta.env.VITE_APP_GOOGLE_MAP_API_KEY}
+        loadingElement={<LoaderComponent />}
+      >
         <GoogleMap
           mapContainerClassName="h-full"
           center={userLocation || { lat: 20.5937, lng: 78.9629 }}
           zoom={12}
           options={{ disableDefaultUI: true, zoomControl: true }}
+          onLoad={onMapLoad} // Ensure map instance is available
         >
-          {userLocation && <Marker position={userLocation} />}
-
-          {filteredTrees.map((tree) => {
+          {data?.data.map((tree) => {
             const [lat, lng] = tree.geolocation
               .split(",")
               .map((coord) => parseFloat(coord.trim()));
@@ -165,21 +142,7 @@ const MapComponent = () => {
               }}
               onCloseClick={() => setSelectedTree(null)}
             >
-              <div>
-                <TreeInfoWindow tree={selectedTree} />
-                {qrCodeUrl && (
-                  <div>
-                    <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
-                    <a
-                      href={qrCodeUrl}
-                      download={`tree-${selectedTree._id}-qrcode.png`}
-                      className="block mt-2 text-blue-500 hover:underline"
-                    >
-                      Download QR Code
-                    </a>
-                  </div>
-                )}
-              </div>
+              <TreeInfoWindow tree={selectedTree} />
             </InfoWindow>
           )}
         </GoogleMap>
