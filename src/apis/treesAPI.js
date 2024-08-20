@@ -15,5 +15,19 @@ const fetchTreeAPI = async (searchTerm) => {
     }
   }
 };
+const EditTreeRequestAPI = async (submitData) => {
+  try {
+    let url =
+      "https://tree-book-backend.vercel.app/api/trees/request-tree-update";
 
-export { fetchTreeAPI };
+    const res = await axios.patch(url, submitData);
+    const data = res?.data;
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError) {
+      throw new Error(error);
+    }
+  }
+};
+
+export { fetchTreeAPI, EditTreeRequestAPI };

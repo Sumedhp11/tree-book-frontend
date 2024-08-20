@@ -114,7 +114,7 @@ const MapComponent = () => {
           center={userLocation || { lat: 20.5937, lng: 78.9629 }}
           zoom={12}
           options={{ disableDefaultUI: true, zoomControl: true }}
-          onLoad={onMapLoad} // Ensure map instance is available
+          onLoad={onMapLoad}
         >
           {data?.data.map((tree) => {
             const [lat, lng] = tree.geolocation

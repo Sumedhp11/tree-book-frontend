@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Clipboard, Edit2 } from "lucide-react";
+import { SquareArrowOutUpRight, Edit2 } from "lucide-react";
 import moment from "moment";
 import toast from "react-hot-toast";
 import {
@@ -9,8 +9,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import EditTreeForm from "./forms/EditTreeForm";
+import { useState } from "react";
 
 const TreeInfoWindow = ({ tree }) => {
+  const [openDialog, setopenDialog] = useState("");
   const generateMarkerUrl = () => {
     return `${window.location.origin}/tree-map?lat=${
       tree?.geolocation.split(",")[0]
@@ -48,13 +51,16 @@ const TreeInfoWindow = ({ tree }) => {
       <p className="text-sm font-medium">
         Added Time: {moment(tree.createdAt).format("H:MM a")}
       </p>
+      <p className="text-sm font-medium">
+        Added By: {tree.added_by.split("@")[0]}
+      </p>
       <div className="flex items-center gap-4">
-        <Clipboard
+        <SquareArrowOutUpRight
           size={20}
           className="cursor-pointer text-blue-500 hover:text-blue-700"
           onClick={copyToClipboard}
         />
-        <Dialog>
+        <Dialog onOpenChange={setopenDialog} open={openDialog}>
           <DialogTrigger>
             <Edit2 className="cursor-pointer text-green-500 hover:text-green-700" />
           </DialogTrigger>
@@ -62,6 +68,7 @@ const TreeInfoWindow = ({ tree }) => {
             <DialogHeader>
               <DialogTitle>Edit Tree Info</DialogTitle>
             </DialogHeader>
+            <EditTreeForm tree={tree} setopenDialog={setopenDialog} />
           </DialogContent>
         </Dialog>
       </div>
