@@ -5,7 +5,7 @@ import { useLayoutEffect, createContext, useState } from "react";
 export const AdminAuthContext = createContext(undefined);
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "https://tree-book-backend.vercel.app/api",
   withCredentials: true,
 });
 
@@ -46,10 +46,10 @@ const AdminAuthProvider = ({ children }) => {
         ) {
           originalRequest._retry = true;
           try {
-            console.log('refreshToken',error);
+            console.log("refreshToken", error);
 
             const { data } = await axios.get(
-              "http://localhost:8080/api/admin/refresh-token",
+              "https://tree-book-backend.vercel.app/api/admin/refresh-token",
               { withCredentials: true }
             );
             console.log(data, "Token refreshed");
