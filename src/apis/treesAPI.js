@@ -33,7 +33,7 @@ const EditTreeRequestAPI = async (submitData) => {
 };
 
 const AdminLoginAPI = async ({ email, password }) => {
-// const { apiClient } = useApiClient();
+
 
   const response = await axios.post(
     "https://tree-book-backend.vercel.app/api/admin/login",
