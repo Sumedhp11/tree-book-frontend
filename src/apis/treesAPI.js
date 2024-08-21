@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-// import useApiClient from "../components/admin/apiClient";
+import useApiClient from "../components/admin/apiClient";
 import axios from "axios";
 
 const fetchTreeAPI = async (searchTerm) => {
@@ -32,8 +32,16 @@ const EditTreeRequestAPI = async (submitData) => {
   }
 };
 
-const AdminLoginAPI = async ({ email, password }) => {
+const getAllTreesApi = async()=>{
+  const apiClient= useApiClient()
+  const res = await apiClient.get('/admin/get-all-trees',{
+    withCredentials:true
+  })
+  return res?.data
 
+}
+
+const AdminLoginAPI = async ({ email, password }) => {
 
   const response = await axios.post(
     "https://tree-book-backend.vercel.app/api/admin/login",
@@ -41,4 +49,4 @@ const AdminLoginAPI = async ({ email, password }) => {
   );
   return response.data;
 };
-export { fetchTreeAPI, EditTreeRequestAPI, AdminLoginAPI };
+export { fetchTreeAPI, EditTreeRequestAPI, AdminLoginAPI, getAllTreesApi };
