@@ -1,5 +1,3 @@
-// src/App.js
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,15 +9,19 @@ import TreeMap from "./components/TreeMap";
 import Login from "./components/Login";
 import LoaderComponent from "./components/Loader";
 import { AuthProvider, AuthContext } from "./components/layout/AuthProvider";
+import Admin from "./components/admin/Admin";
+import AdminLogin from "./components/admin/pages/AdminLogin";
+import AdminAuthProvider, { AdminAuthContext } from "./components/layout/AdminAuthProvide";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
+    <Router>
+      {/* Routes that use AuthProvider */}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <AuthProvider>
               <AuthContext.Consumer>
                 {({ user, isLoading }) =>
                   isLoading ? (
@@ -31,11 +33,13 @@ function App() {
                   )
                 }
               </AuthContext.Consumer>
-            }
-          />
-          <Route
-            path="/add-tree"
-            element={
+            </AuthProvider>
+          }
+        />
+        <Route
+          path="/add-tree"
+          element={
+            <AuthProvider>
               <AuthContext.Consumer>
                 {({ user, isLoading }) =>
                   isLoading ? (
@@ -47,11 +51,13 @@ function App() {
                   )
                 }
               </AuthContext.Consumer>
-            }
-          />
-          <Route
-            path="/tree-map"
-            element={
+            </AuthProvider>
+          }
+        />
+        <Route
+          path="/tree-map"
+          element={
+            <AuthProvider>
               <AuthContext.Consumer>
                 {({ user, isLoading }) =>
                   isLoading ? (
@@ -63,11 +69,31 @@ function App() {
                   )
                 }
               </AuthContext.Consumer>
-            }
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
+            </AuthProvider>
+          }
+        />
+
+        {/* Admin routes with AdminAuthProvider */}
+        <Route
+          path="/admin"
+          element={
+            <AdminAuthProvider>
+              <AdminAuthContext.Consumer>
+                {({ authToken, isLoading }) =>
+                  isLoading ? (
+                    <LoaderComponent />
+                  ) : authToken ? (
+                    <Admin />
+                  ) : (
+                    <AdminLogin />
+                  )
+                }
+              </AdminAuthContext.Consumer>
+            </AdminAuthProvider>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
 
