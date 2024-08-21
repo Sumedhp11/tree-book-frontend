@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { AdminLoginAPI } from "../../../apis/treesAPI";
 import { useMutation } from "@tanstack/react-query";
-import { AdminAuthContext } from "../../layout/AdminAuthProvide";
+import { AdminAuthContext } from "../../layout/AdminAuthProvider";
 import { Button } from "../../../components/ui/button";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,8 @@ const AdminLogin = () => {
     mutationFn: AdminLoginAPI,
     onSuccess: (data) => {
       setToken(data.token);
+      console.log(document.cookie, 17);
+
       toast.success("Welcome Admin");
       navigate("/admin/dashboard");
     },
