@@ -1,52 +1,47 @@
-import { useState } from "react";
-
+import { LayoutDashboard, Trees, FilePenLine } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 const Sidebar = () => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    const toggleSidebar = () => {
-        setIsOpen(!isOpen);
-    };
-
+    const location = useLocation();
+    const sideBarLinks = [
+        {
+            href: "/admin/dashboard",
+            label: "Dashboard",
+            icon: LayoutDashboard,
+        },
+        {
+            href: "/admin/trees",
+            label: "Trees",
+            icon: Trees,
+        },
+        {
+            href: "/admin/edit-request",
+            label: "Edit Request",
+            icon: FilePenLine,
+        },
+    ];
     return (
-        <div className="flex">
-            {/* Sidebar */}
-            <div
-                className={`bg-gray-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform ${isOpen ? "translate-x-0" : "-translate-x-full"
-                    } transition-transform duration-200 ease-in-out`}
-            >
-                {/* Logo */}
-                <div className="text-white text-2xl font-semibold text-center">
-                    MyApp
-                </div>
-                {/* Menu items */}
-                <nav>
-                    <a href="#" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
-                        Dashboard
-                    </a>
-                    <a href="#" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
-                        Tree
-                    </a>
-                    <a href="#" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
-                        Edit Request 
-                    </a>
-                    <a href="#" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">
-                        Logout
-                    </a>
-                </nav>
-            </div>
-
-            {/* Toggle Button */}
-            <button
-                className="p-2 bg-gray-800 text-white rounded-md m-2"
-                onClick={toggleSidebar}
-            >
-                {isOpen ? "Close" : "Open"}
-            </button>
-
-            {/* Content */}
-            <div className="p-8 ml-16">
-                <h1 className="text-3xl font-semibold">Content Area</h1>
-                <p>This is where your main content will go.</p>
+        <div className="w-full flex flex-col items-center  h-full px-2 bg-green-600">
+            <h1 className="mt-4 text-lg font-normal text-white">Welcome Admin</h1>
+            <div className="w-[90%] flex flex-col space-y-5 mt-10">
+                {sideBarLinks.map((i) => (
+                    <Link
+                        key={i.label}
+                        to={i.href}
+                        className={`w-full flex gap-5 p-2 rounded-md ${location.pathname === i.href
+                                ? "bg-white text-black"
+                                : "border text-white"
+                            }`}
+                    >
+                        <i.icon
+                            size={25}
+                            className={`${location.pathname === i.href
+                                    ? "bg-white text-black"
+                                    : "text-white"
+                                }`}
+                        />
+                        <p>{i.label}</p>
+                    </Link>
+                ))}
             </div>
         </div>
     );

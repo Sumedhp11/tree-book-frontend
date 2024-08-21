@@ -3,6 +3,7 @@ import { AdminLoginAPI } from "../../../apis/treesAPI";
 import { useMutation } from "@tanstack/react-query";
 import { AdminAuthContext } from "../../layout/AdminAuthProvide";
 import { Button } from "../../../components/ui/button";
+import toast from "react-hot-toast";
 
 
 
@@ -13,6 +14,10 @@ const AdminLogin = () => {
         mutationFn: AdminLoginAPI,
         onSuccess: (data) => {
             setToken(data.token)
+            toast.success('Successfully toasted!')
+        },
+        onError:(error)=>{
+            toast.error('Error toasted! '+ error)
         }
     });
 
