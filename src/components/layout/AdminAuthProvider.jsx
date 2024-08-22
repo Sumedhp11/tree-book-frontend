@@ -14,7 +14,25 @@ const apiClient = axios.create({
 const AdminAuthProvider = ({ children }) => {
   const [authToken, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  useLayoutEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const { data } = await apiClient.get("/admin/refresh-token", {
+          withCredentials: true,
+        });
+        console.log(data, "Token refreshed");
 
+        setToken(data.accessToken);
+      } catch (error) {
+        console.error("Refresh token validation failed:", error);
+        setToken(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchToken();
+  }, []);
   useLayoutEffect(() => {
     const authInterceptor = apiClient.interceptors.request.use(
       (config) => {
