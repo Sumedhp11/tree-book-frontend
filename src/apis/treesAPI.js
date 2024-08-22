@@ -15,7 +15,7 @@ const fetchTreeAPI = async (searchTerm) => {
     }
   }
 };
-const EditTreeRequestAPI = async (submitData) => {
+const EditTreeRequestAPI = async ({ treeId, submitData }) => {
   try {
     let url =
       "https://tree-book-backend.vercel.app/api/trees/request-tree-update";
@@ -43,4 +43,5 @@ const AdminLoginAPI = async ({ email, password }) => {
   );
   return response.data;
 };
+
 export { AdminLoginAPI, EditTreeRequestAPI, fetchTreeAPI };

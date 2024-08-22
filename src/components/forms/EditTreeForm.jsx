@@ -1,13 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { EditTreeRequestAPI } from "../../apis/treesAPI";
+
 import { AuthContext } from "../layout/AuthProvider";
 import { Button } from "../ui/button";
 
 /* eslint-disable react/prop-types */
-const EditTreeForm = ({ tree, setopenDialog }) => {
+const EditTreeForm = ({ tree, setopenDialog, editFunction }) => {
   const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     name: tree?.name || "",
     soil_type: tree?.soil_type || "",
@@ -34,13 +35,14 @@ const EditTreeForm = ({ tree, setopenDialog }) => {
   }, [formData, tree]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: EditTreeRequestAPI,
+    mutationFn: editFunction,
     onMutate: () => {
       const id = toast.loading("Sending Tree Update Request to Admin");
       setToastId(id);
     },
     onSuccess: (data) => {
       toast.success(data.message, { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["trees"] });
 
       setopenDialog(false);
     },
@@ -64,7 +66,7 @@ const EditTreeForm = ({ tree, setopenDialog }) => {
       (key) => submitData[key] === undefined && delete submitData[key]
     );
 
-    mutate(submitData);
+    mutate({ treeId: tree._id, submitData });
   };
 
   return (

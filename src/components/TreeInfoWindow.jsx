@@ -11,6 +11,7 @@ import {
 } from "./ui/dialog";
 import EditTreeForm from "./forms/EditTreeForm";
 import { useState } from "react";
+import { EditTreeRequestAPI } from "../apis/treesAPI";
 
 const TreeInfoWindow = ({ tree }) => {
   const [openDialog, setopenDialog] = useState("");
@@ -68,7 +69,11 @@ const TreeInfoWindow = ({ tree }) => {
             <DialogHeader>
               <DialogTitle>Edit Tree Info</DialogTitle>
             </DialogHeader>
-            <EditTreeForm tree={tree} setopenDialog={setopenDialog} />
+            <EditTreeForm
+              tree={tree}
+              setopenDialog={setopenDialog}
+              editFunction={EditTreeRequestAPI}
+            />
           </DialogContent>
         </Dialog>
       </div>

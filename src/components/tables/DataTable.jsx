@@ -22,14 +22,14 @@ export default function DataTable({ data, columns }) {
   });
 
   return (
-    <Table className="rounded-lg border border-zinc-400 overflow-y-hidden">
-      <TableHeader className="bg-[#F3F4F6] ">
+    <Table className="rounded-lg border-2 border-zinc-400 overflow-y-hidden">
+      <TableHeader className="">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
-                  className="text-muted-foreground border-b-[0.8px] border-gray-400 text-black text-base font-medium whitespace-nowrap"
+                  className="text-muted-foreground text-center border-b-[0.8px] border-gray-400 text-black text-base font-medium whitespace-nowrap"
                   key={header.id}
                 >
                   {header.isPlaceholder
@@ -60,12 +60,13 @@ export default function DataTable({ data, columns }) {
                 delay: index * 0.2,
                 ease: "easeInOut",
               }}
-              className={`border-b-[0.8px] border-gray-400 py-2 text-sm ${
-                row.original.isdeleted ? "bg-gray-300 rounded" : ""
-              }`}
+              className={`border-b-[0.8px] border-gray-400 py-2 text-sm `}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell className="font-normal cursor-pointer" key={cell.id}>
+                <TableCell
+                  className="font-normal cursor-pointer text-center"
+                  key={cell.id}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

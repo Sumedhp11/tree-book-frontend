@@ -17,6 +17,7 @@ import AdminAuthProvider, {
 } from "./components/layout/AdminAuthProvider";
 import Dashboard from "./components/admin/pages/Dashboard";
 import Trees from "./components/admin/pages/Trees";
+import EditRequests from "./components/admin/pages/EditRequests";
 
 const PrivateRoute = ({ children, isLoading, user }) => {
   if (isLoading) return <LoaderComponent />;
@@ -104,8 +105,7 @@ function App() {
                 <AdminAuthContext.Consumer>
                   {({ authToken, isLoading }) => (
                     <AdminRoute isLoading={isLoading} authToken={authToken}>
-                      <Dashboard />{" "}
-                      {/* Change to the correct component if needed */}
+                      <EditRequests />
                     </AdminRoute>
                   )}
                 </AdminAuthContext.Consumer>
