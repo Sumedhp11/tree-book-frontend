@@ -10,7 +10,9 @@ const Trees = () => {
     queryKey: ["trees"],
     queryFn: async () => {
       try {
-        const res = await apiClient.get("/admin/get-all-trees");
+        const res = await apiClient.get("/admin/get-all-trees", {
+          withCredentials: true,
+        });
         console.log(res);
 
         return res.data;

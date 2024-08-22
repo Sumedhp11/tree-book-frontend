@@ -14,7 +14,6 @@ const AdminLogin = () => {
     mutationFn: AdminLoginAPI,
     onSuccess: (data) => {
       setToken(data.token);
-      console.log(document.cookie, 17);
 
       toast.success("Welcome Admin");
       navigate("/admin/dashboard");

@@ -3,10 +3,12 @@ import axios from "axios";
 import { useLayoutEffect, createContext, useState } from "react";
 
 export const AdminAuthContext = createContext(undefined);
-
+const urls = [
+  "https://tree-book-backend.vercel.app/api",
+  "http://localhost:8080/api",
+];
 const apiClient = axios.create({
-  baseURL: "https://tree-book-backend.vercel.app/api",
-  withCredentials: true,
+  baseURL: urls[0],
 });
 
 const AdminAuthProvider = ({ children }) => {
@@ -16,9 +18,8 @@ const AdminAuthProvider = ({ children }) => {
   useLayoutEffect(() => {
     const authInterceptor = apiClient.interceptors.request.use(
       (config) => {
-        console.log("Setting Token", authToken);
         if (authToken && !config._retry) {
-          config.headers.Authorization = `Bearer ${authToken}`;
+          config.headers.token = `${authToken}`;
         }
         return config;
       },
@@ -37,27 +38,24 @@ const AdminAuthProvider = ({ children }) => {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
+        console.log("refreshToken", error);
 
         if (
           error.response &&
-          error.response.status === 401 &&
-          error.response.data.message === "Invalid or expired access token" &&
+          error.response.status === 403 &&
+          error.response.data.message === "Invalid or expired token" &&
           !originalRequest._retry
         ) {
           originalRequest._retry = true;
           try {
-            console.log("refreshToken", error);
-
-            const { data } = await axios.get(
-              "https://tree-book-backend.vercel.app/api/admin/refresh-token",
-              { withCredentials: true }
-            );
+            const { data } = await apiClient.get("/admin/refresh-token", {
+              withCredentials: true,
+            });
             console.log(data, "Token refreshed");
 
-            // Set new access token
             setToken(data.accessToken);
 
-            originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+            originalRequest.headers.token = `${data.accessToken}`;
             return apiClient(originalRequest);
           } catch (refreshError) {
             console.error("Refresh token failed:", refreshError);
