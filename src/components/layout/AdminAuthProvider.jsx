@@ -32,7 +32,7 @@ const AdminAuthProvider = ({ children }) => {
     };
 
     fetchToken();
-  }, []);
+  }, [authToken]);
   useLayoutEffect(() => {
     const authInterceptor = apiClient.interceptors.request.use(
       (config) => {
