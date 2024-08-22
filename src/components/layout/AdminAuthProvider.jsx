@@ -17,10 +17,10 @@ const AdminAuthProvider = ({ children }) => {
   useLayoutEffect(() => {
     const fetchToken = async () => {
       try {
+        setIsLoading(true);
         const { data } = await apiClient.get("/admin/refresh-token", {
           withCredentials: true,
         });
-        console.log(data, "Token refreshed");
 
         setToken(data.accessToken);
       } catch (error) {

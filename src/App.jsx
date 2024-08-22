@@ -25,7 +25,7 @@ const PrivateRoute = ({ children, isLoading, user }) => {
 
 const AdminRoute = ({ children, isLoading, authToken }) => {
   if (isLoading) return <LoaderComponent />;
-  return authToken !== null ? children : <Navigate to="/admin/login" />;
+  return authToken ? children : <Navigate to="/admin/login" />;
 };
 
 const AuthLoader = () => {
