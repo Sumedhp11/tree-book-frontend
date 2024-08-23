@@ -38,7 +38,7 @@ const Sidebar = () => {
   ];
   const { mutate } = useMutation({
     mutationFn: async () => {
-      await apiClient.post(`/admin/logout`, {
+      await apiClient.post(`/admin/logout`,{}, {
         withCredentials: true,
       });
     },
