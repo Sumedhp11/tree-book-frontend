@@ -12,13 +12,13 @@ import {
 import EditTreeForm from "./forms/EditTreeForm";
 import { useState } from "react";
 import { EditTreeRequestAPI } from "../apis/treesAPI";
+import { Link } from "react-router-dom";
 
 const TreeInfoWindow = ({ tree }) => {
   const [openDialog, setopenDialog] = useState("");
   const generateMarkerUrl = () => {
-    return `${window.location.origin}/tree-map?lat=${
-      tree?.geolocation.split(",")[0]
-    }&lng=${tree?.geolocation.split(",")[1]}`;
+    return `${window.location.origin}/tree-map?lat=${tree?.geolocation.split(",")[0]
+      }&lng=${tree?.geolocation.split(",")[1]}`;
   };
 
   const copyToClipboard = () => {
@@ -55,6 +55,9 @@ const TreeInfoWindow = ({ tree }) => {
       <p className="text-sm font-medium">
         Added By: {tree.added_by.split("@")[0]}
       </p>
+      <Link to={`/${tree.name}`} className="text-blue-600 font-medium text-xs">
+        Want to Know More
+      </Link>
       <div className="flex items-center gap-4">
         <SquareArrowOutUpRight
           size={20}

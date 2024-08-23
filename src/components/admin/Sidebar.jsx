@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { FilePenLine, LayoutDashboard, LogOut, Trees } from "lucide-react";
+import { FilePenLine, LayoutDashboard, LogOut, Trees, BookOpenText } from "lucide-react";
 import { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AdminAuthContext } from "../layout/AdminAuthProvider";
@@ -35,10 +35,16 @@ const Sidebar = () => {
       label: "Edit Requests",
       icon: FilePenLine,
     },
+    {
+      href: "/admin/kb",
+      label: "KB",
+      icon: BookOpenText,
+
+    }
   ];
   const { mutate } = useMutation({
     mutationFn: async () => {
-      await apiClient.post(`/admin/logout`,{}, {
+      await apiClient.post(`/admin/logout`, {}, {
         withCredentials: true,
       });
     },
@@ -66,19 +72,17 @@ const Sidebar = () => {
           <Link
             key={i.label}
             to={i.href}
-            className={`w-full flex items-center justify-between flex-nowrap p-2 rounded-md ${
-              location.pathname === i.href
-                ? "bg-white text-black"
-                : "border text-white"
-            }`}
+            className={`w-full flex items-center justify-between flex-nowrap p-2 rounded-md ${location.pathname === i.href
+              ? "bg-white text-black"
+              : "border text-white"
+              }`}
           >
             <i.icon
               size={23}
-              className={`${
-                location.pathname === i.href
-                  ? "bg-white text-black"
-                  : "text-white"
-              }`}
+              className={`${location.pathname === i.href
+                ? "bg-white text-black"
+                : "text-white"
+                }`}
             />
             <p className="text-sm font-medium text-nowrap">{i.label}</p>
           </Link>

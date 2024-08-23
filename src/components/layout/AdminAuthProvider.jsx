@@ -1,6 +1,6 @@
-/* eslint-disable react/prop-types */
 import axios from "axios";
-import { useLayoutEffect, createContext, useState } from "react";
+import { useLayoutEffect, createContext, useState, useEffect } from "react";
+import { AlertDestructive } from "../ui/AlertBox";
 
 export const AdminAuthContext = createContext(undefined);
 const urls = [
@@ -14,6 +14,25 @@ const apiClient = axios.create({
 const AdminAuthProvider = ({ children }) => {
   const [authToken, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth <= 420) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    };
+
+    checkMobile();
+
+    window.addEventListener("resize", checkMobile);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+    };
+  }, []);
+
   useLayoutEffect(() => {
     const fetchToken = async () => {
       try {
@@ -21,7 +40,6 @@ const AdminAuthProvider = ({ children }) => {
         const { data } = await apiClient.get("/admin/refresh-token", {
           withCredentials: true,
         });
-
         setToken(data.accessToken);
       } catch (error) {
         console.error("Refresh token validation failed:", error);
@@ -33,6 +51,7 @@ const AdminAuthProvider = ({ children }) => {
 
     fetchToken();
   }, [authToken]);
+
   useLayoutEffect(() => {
     const authInterceptor = apiClient.interceptors.request.use(
       (config) => {
@@ -89,6 +108,10 @@ const AdminAuthProvider = ({ children }) => {
       apiClient.interceptors.response.eject(refreshInterceptor);
     };
   }, [authToken]);
+
+  if (isMobile) {
+    return <div className="flex justify-center items-center" style={{ height: "100vh" }}> <AlertDestructive /></div>;
+  }
 
   return (
     <AdminAuthContext.Provider

@@ -18,6 +18,8 @@ import AdminAuthProvider, {
 import Dashboard from "./components/admin/pages/Dashboard";
 import Trees from "./components/admin/pages/Trees";
 import EditRequests from "./components/admin/pages/EditRequests";
+import TreeKbPage from "./components/TreeKbPage";
+import KbBook from "./components/admin/pages/KbBook";
 
 const PrivateRoute = ({ children, isLoading, user }) => {
   if (isLoading) return <LoaderComponent />;
@@ -72,6 +74,18 @@ function App() {
                 </AuthContext.Consumer>
               }
             />
+            <Route
+              path="/:name"
+              element={
+                <AuthContext.Consumer>
+                  {({ user, isLoading }) => (
+                    <PrivateRoute isLoading={isLoading} user={user}>
+                      <TreeKbPage />
+                    </PrivateRoute>
+                  )}
+                </AuthContext.Consumer>
+              }
+            />
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminAuthLoader />} />
             <Route path="/admin/login" element={<AdminAuthLoader />} />
@@ -106,6 +120,18 @@ function App() {
                   {({ authToken, isLoading }) => (
                     <AdminRoute isLoading={isLoading} authToken={authToken}>
                       <EditRequests />
+                    </AdminRoute>
+                  )}
+                </AdminAuthContext.Consumer>
+              }
+            />
+            <Route
+              path="/admin/kb"
+              element={
+                <AdminAuthContext.Consumer>
+                  {({ authToken, isLoading }) => (
+                    <AdminRoute isLoading={isLoading} authToken={authToken}>
+                      <KbBook />
                     </AdminRoute>
                   )}
                 </AdminAuthContext.Consumer>
