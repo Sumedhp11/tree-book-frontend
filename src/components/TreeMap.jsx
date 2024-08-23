@@ -26,7 +26,6 @@ const MapComponent = () => {
     queryFn: () => fetchTreeAPI(debouncedSearchTerm),
   });
 
-  
   useLayoutEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -36,7 +35,7 @@ const MapComponent = () => {
         });
       },
       (error) => {
-        console.error("Geolocation error:", error);
+        console.error("Geolocation error:", error.message);
       },
       {
         enableHighAccuracy: true,
