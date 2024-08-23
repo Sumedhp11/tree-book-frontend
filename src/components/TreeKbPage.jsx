@@ -36,25 +36,25 @@ const TreeKbPage = () => {
 
         {/* Tree Information */}
         <div className="flex flex-col space-y-3">
-          <div className="mt-4 flex gap-1 items-center">
+          <div className="mt-4 flex flex-nowrap gap-1 items-center">
             <span className="font-medium text-sm">Common Name:</span>
             <span className="font-normal text-base">
               {data?.data[0].commonName}
             </span>
           </div>
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-1 flex-nowrap items-center">
             <span className="font-medium text-sm">Scientific Name:</span>
             <span className="font-normal text-base">
               {data?.data[0].scientificName}
             </span>
           </div>
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-1 flex-nowrap items-center">
             <span className="font-medium text-sm">Family:</span>
             <span className="font-normal text-base">
               {data?.data[0].family}
             </span>
           </div>
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-1 flex-nowrap items-center">
             <span className="font-medium text-sm">Availability:</span>
             <span className="font-normal text-base">
               {data?.data[0].availability}
