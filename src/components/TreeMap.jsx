@@ -35,7 +35,7 @@ const MapComponent = () => {
         });
       },
       (error) => {
-        console.error("Geolocation error:", error.message);
+        console.error("Geolocation error:", error);
       },
       {
         enableHighAccuracy: true,

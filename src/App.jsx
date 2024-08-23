@@ -1,53 +1,33 @@
 /* eslint-disable react/prop-types */
-import { Suspense, lazy, useContext } from "react";
 import {
-  Navigate,
-  Route,
   BrowserRouter as Router,
   Routes,
+  Route,
+  Navigate,
 } from "react-router-dom";
+import { useContext } from "react";
+import AddTreeForm from "./components/AddTreeForm";
+import TreeMap from "./components/TreeMap";
+import Login from "./components/Login";
+import LoaderComponent from "./components/Loader";
+import { AuthProvider, AuthContext } from "./components/layout/AuthProvider";
+import AdminLogin from "./components/admin/pages/AdminLogin";
 import AdminAuthProvider, {
   AdminAuthContext,
 } from "./components/layout/AdminAuthProvider";
-import { AuthContext, AuthProvider } from "./components/layout/AuthProvider";
-import LoaderComponent from "./components/Loader";
-import { AlertDestructive } from "./components/ui/AlertBox";
+import Dashboard from "./components/admin/pages/Dashboard";
+import Trees from "./components/admin/pages/Trees";
+import EditRequests from "./components/admin/pages/EditRequests";
+import TreeKbPage from "./components/TreeKbPage";
+import KbBook from "./components/admin/pages/KbBook";
 
-const AddTreeForm = lazy(() => import("./components/AddTreeForm"));
-const TreeMap = lazy(() => import("./components/TreeMap"));
-const Login = lazy(() => import("./components/Login"));
-const AdminLogin = lazy(() => import("./components/admin/pages/AdminLogin"));
-const Dashboard = lazy(() => import("./components/admin/pages/Dashboard"));
-const Trees = lazy(() => import("./components/admin/pages/Trees"));
-const EditRequests = lazy(() =>
-  import("./components/admin/pages/EditRequests")
-);
-const TreeKbPage = lazy(() => import("./components/TreeKbPage"));
-const KbBook = lazy(() => import("./components/admin/pages/KbBook"));
-
-const PrivateRoute = ({ children }) => {
-  const { user, isLoading } = useContext(AuthContext);
-
+const PrivateRoute = ({ children, isLoading, user }) => {
   if (isLoading) return <LoaderComponent />;
   return user !== null ? children : <Navigate to="/" />;
 };
 
-const AdminRoute = ({ children }) => {
-  const { authToken, isLoading, isMobile } = useContext(AdminAuthContext);
-
+const AdminRoute = ({ children, isLoading, authToken }) => {
   if (isLoading) return <LoaderComponent />;
-
-  if (isMobile) {
-    return (
-      <div
-        className="flex justify-center items-center"
-        style={{ height: "100vh" }}
-      >
-        <AlertDestructive />
-      </div>
-    );
-  }
-
   return authToken ? children : <Navigate to="/admin/login" />;
 };
 
@@ -58,17 +38,7 @@ const AuthLoader = () => {
 };
 
 const AdminAuthLoader = () => {
-  const { authToken, isLoading, isMobile } = useContext(AdminAuthContext);
-  if (isMobile) {
-    return (
-      <div
-        className="flex justify-center items-center"
-        style={{ height: "100vh" }}
-      >
-        <AlertDestructive />
-      </div>
-    );
-  }
+  const { authToken, isLoading } = useContext(AdminAuthContext);
   if (isLoading) return <LoaderComponent />;
   return authToken ? <Navigate to="/admin/dashboard" /> : <AdminLogin />;
 };
@@ -78,72 +48,96 @@ function App() {
     <AuthProvider>
       <AdminAuthProvider>
         <Router>
-          <Suspense fallback={<LoaderComponent />}>
-            <Routes>
-              {/* User Routes */}
-              <Route path="/" element={<AuthLoader />} />
-              <Route
-                path="/add-tree"
-                element={
-                  <PrivateRoute>
-                    <AddTreeForm />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/tree-map"
-                element={
-                  <PrivateRoute>
-                    <TreeMap />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/:name"
-                element={
-                  <PrivateRoute>
-                    <TreeKbPage />
-                  </PrivateRoute>
-                }
-              />
-
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminAuthLoader />} />
-              <Route path="/admin/login" element={<AdminAuthLoader />} />
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <AdminRoute>
-                    <Dashboard />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/trees"
-                element={
-                  <AdminRoute>
-                    <Trees />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/edit-request"
-                element={
-                  <AdminRoute>
-                    <EditRequests />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/kb"
-                element={
-                  <AdminRoute>
-                    <KbBook />
-                  </AdminRoute>
-                }
-              />
-            </Routes>
-          </Suspense>
+          <Routes>
+            <Route path="/" element={<AuthLoader />} />
+            <Route
+              path="/add-tree"
+              element={
+                <AuthContext.Consumer>
+                  {({ user, isLoading }) => (
+                    <PrivateRoute isLoading={isLoading} user={user}>
+                      <AddTreeForm />
+                    </PrivateRoute>
+                  )}
+                </AuthContext.Consumer>
+              }
+            />
+            <Route
+              path="/tree-map"
+              element={
+                <AuthContext.Consumer>
+                  {({ user, isLoading }) => (
+                    <PrivateRoute isLoading={isLoading} user={user}>
+                      <TreeMap />
+                    </PrivateRoute>
+                  )}
+                </AuthContext.Consumer>
+              }
+            />
+            <Route
+              path="/:name"
+              element={
+                <AuthContext.Consumer>
+                  {({ user, isLoading }) => (
+                    <PrivateRoute isLoading={isLoading} user={user}>
+                      <TreeKbPage />
+                    </PrivateRoute>
+                  )}
+                </AuthContext.Consumer>
+              }
+            />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminAuthLoader />} />
+            <Route path="/admin/login" element={<AdminAuthLoader />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminAuthContext.Consumer>
+                  {({ authToken, isLoading }) => (
+                    <AdminRoute isLoading={isLoading} authToken={authToken}>
+                      <Dashboard />
+                    </AdminRoute>
+                  )}
+                </AdminAuthContext.Consumer>
+              }
+            />
+            <Route
+              path="/admin/trees"
+              element={
+                <AdminAuthContext.Consumer>
+                  {({ authToken, isLoading }) => (
+                    <AdminRoute isLoading={isLoading} authToken={authToken}>
+                      <Trees />
+                    </AdminRoute>
+                  )}
+                </AdminAuthContext.Consumer>
+              }
+            />
+            <Route
+              path="/admin/edit-request"
+              element={
+                <AdminAuthContext.Consumer>
+                  {({ authToken, isLoading }) => (
+                    <AdminRoute isLoading={isLoading} authToken={authToken}>
+                      <EditRequests />
+                    </AdminRoute>
+                  )}
+                </AdminAuthContext.Consumer>
+              }
+            />
+            <Route
+              path="/admin/kb"
+              element={
+                <AdminAuthContext.Consumer>
+                  {({ authToken, isLoading }) => (
+                    <AdminRoute isLoading={isLoading} authToken={authToken}>
+                      <KbBook />
+                    </AdminRoute>
+                  )}
+                </AdminAuthContext.Consumer>
+              }
+            />
+          </Routes>
         </Router>
       </AdminAuthProvider>
     </AuthProvider>
