@@ -1,6 +1,6 @@
+/* eslint-disable react/prop-types */
 import axios from "axios";
 import { useLayoutEffect, createContext, useState, useEffect } from "react";
-import { AlertDestructive } from "../ui/AlertBox";
 
 export const AdminAuthContext = createContext(undefined);
 const urls = [
@@ -49,7 +49,9 @@ const AdminAuthProvider = ({ children }) => {
       }
     };
 
-    fetchToken();
+    if (!authToken) {
+      fetchToken();
+    }
   }, [authToken]);
 
   useLayoutEffect(() => {
@@ -109,13 +111,16 @@ const AdminAuthProvider = ({ children }) => {
     };
   }, [authToken]);
 
-  if (isMobile) {
-    return <div className="flex justify-center items-center" style={{ height: "100vh" }}> <AlertDestructive /></div>;
-  }
-
   return (
     <AdminAuthContext.Provider
-      value={{ authToken, setToken, setIsLoading, isLoading, apiClient }}
+      value={{
+        authToken,
+        setToken,
+        setIsLoading,
+        isLoading,
+        apiClient,
+        isMobile,
+      }}
     >
       {children}
     </AdminAuthContext.Provider>

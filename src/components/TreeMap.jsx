@@ -26,7 +26,6 @@ const MapComponent = () => {
     queryFn: () => fetchTreeAPI(debouncedSearchTerm),
   });
 
-  
   useLayoutEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
